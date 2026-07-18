@@ -65,6 +65,8 @@ h1 em { color: var(--lime); font-family: 'Playfair Display', Georgia, serif; fon
 .use-case-copy, .use-case-example { padding: clamp(28px, 4.5vw, 52px); background: #091a16; }
 .use-case-copy h2 { max-width: 670px; }
 .use-case-copy > p:last-child { max-width: 720px; margin: 26px 0 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+.use-case-copy .use-case-applications { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; line-height: 1.8; }
+.use-case-applications strong { display: block; margin-bottom: 5px; color: var(--lime); font: 500 10px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; }
 .use-case-example { background: linear-gradient(145deg, rgba(201,243,107,.12), rgba(9,26,22,.96)); }
 .use-case-example > span, .comparison-card > span, .round-card > span {
   color: var(--lime);
