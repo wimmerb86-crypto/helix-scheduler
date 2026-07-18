@@ -72,8 +72,9 @@ h1 em { color: var(--lime); font-family: 'Playfair Display', Georgia, serif; fon
   letter-spacing: .12em;
 }
 .use-case-example ol { display: grid; gap: 8px; margin: 26px 0; padding: 0; list-style: none; }
-.use-case-example li { display: grid; grid-template-columns: 34px 1fr; align-items: center; min-height: 38px; border-bottom: 1px solid var(--line); }
+.use-case-example li { display: grid; grid-template-columns: 86px 1fr; align-items: center; min-height: 38px; border-bottom: 1px solid var(--line); }
 .use-case-example li b { color: var(--lime); font: 500 13px 'DM Mono', monospace; }
+.use-case-example li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .use-case-example p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
 
 .scheduler-panel { position: relative; scroll-margin-top: 30px; padding: clamp(24px, 5vw, 54px); border: 1px solid var(--line); background: linear-gradient(145deg, rgba(15,42,35,.96), rgba(7,23,19,.96)); box-shadow: 0 28px 80px rgba(0,0,0,.25); }
@@ -135,7 +136,7 @@ h2 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.04em
 table { width: 100%; border-collapse: collapse; font-family: 'DM Mono', monospace; text-align: center; }
 th, td { padding: 13px 15px; border-bottom: 1px solid var(--line); }
 thead th { color: var(--muted); font-size: 10px; letter-spacing: .12em; font-weight: 500; }
-tbody th { text-align: left; }
+tbody th { text-align: left; white-space: nowrap; }
 td { color: var(--lime); }
 .matrix-dot { display: inline-block; width: 7px; height: 7px; margin-right: 12px; border-radius: 50%; }
 .dot-a { background: #c9f36b; }.dot-b { background: #a9d8ca; }.dot-c { background: #f1c9a5; }.dot-d { background: #d6c2f0; }

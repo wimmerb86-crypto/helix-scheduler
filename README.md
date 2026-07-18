@@ -1,6 +1,6 @@
 # Helix Scheduler
 
-Helix Scheduler is a balanced rotation planner for teams, testers, and researchers who repeat four independent tasks and need the ordering to be fair, complete, and easy to audit. It turns a complete cyclic traversal of all 24 permutations into an interactive, copyable 24-round plan.
+Helix Scheduler is a balanced meeting-slot planner for four companies that share one conference room with four daily time slots. It turns a complete cyclic traversal of all 24 booking orders into an interactive, copyable 24-day schedule.
 
 It is an **experimental symmetry-derived, balanced traversal and fault-tolerant scheduling demonstration**—not a claim of universal scheduling optimality.
 
@@ -10,15 +10,15 @@ Open [Helix Scheduler on GitHub Pages](https://wimmerb86-crypto.github.io/helix-
 
 ## Where Helix is useful
 
-Helix is designed for repeated rounds in which four independent tasks, people, checks, or test operations must take turns occupying four ordered positions. Examples include daily operational checks, meeting or presentation rotations, counterbalanced study sessions, and software tests that need to exercise every operation order.
+Imagine four companies sharing one conference room at 9:00 AM, 11:00 AM, 1:00 PM, and 3:00 PM. An uncontrolled random schedule can repeatedly give one company the most desirable time. Helix schedules all 24 possible daily booking orders so every company receives every time slot exactly six times.
 
-Across one 24-round cycle:
+Across one 24-day cycle:
 
 - every possible ordering appears exactly once;
-- every task occupies every position exactly six times; and
-- each new round changes only one neighboring pair.
+- every company receives every meeting time exactly six times; and
+- each new day changes only one neighboring pair, so two companies move by one slot while the other two keep their times.
 
-Independent random selection cannot guarantee those properties over a fixed number of rounds. Randomly shuffling all 24 states without replacement can provide complete coverage, but Helix also provides minimal adjacent changes, a deterministic audit trail, and a closed cycle that can be paused, reversed, and repeated.
+Independent random selection cannot guarantee those properties over a fixed number of days. Randomly shuffling all 24 states without replacement can provide complete coverage, but Helix also provides minimal adjacent changes, a deterministic audit trail, and a closed cycle that can be paused, reversed, and repeated.
 
 ## Quick start
 
@@ -80,9 +80,9 @@ The tests verify:
 
 ## Limitations
 
-- The MVP handles exactly four tasks and the specified fixed cycle.
-- Task names live only in current browser memory and reset on refresh.
-- Auto-run uses a fixed interval and does not model task durations, dependencies, capacity, or real production scheduling constraints.
+- The MVP handles exactly four companies, four time slots, and the specified fixed cycle.
+- Company names live only in current browser memory and reset on refresh.
+- Auto-run uses a fixed interval and does not model variable meeting durations, conflicts, availability, or room capacity.
 - Positional balance is one fairness property; it does not imply optimality for every workload or objective.
 
 ## Build Week development history
