@@ -2,6 +2,10 @@
 
 Helix Scheduler is an interactive Build Week demonstration of a complete cyclic traversal through all 24 permutations of four tasks. It is an **experimental symmetry-derived, balanced traversal and fault-tolerant scheduling demonstration**—not a claim of universal scheduling optimality.
 
+## Live demo
+
+Open [Helix Scheduler on GitHub Pages](https://wimmerb86-crypto.github.io/helix-scheduler/).
+
 ## Quick start
 
 Requirements: Node.js 20.19 or newer.
