@@ -1,6 +1,8 @@
 # Helix Scheduler
 
-Helix Scheduler is a balanced meeting-slot planner for four companies that share one conference room with four daily time slots. It turns a complete cyclic traversal of all 24 booking orders into an interactive, copyable 24-day schedule.
+Helix Scheduler is an interactive balanced traversal engine for four items whose ordering may validly change. It turns a complete cyclic traversal of all 24 permutations into an auditable plan in which every item occupies every position six times and each transition changes one neighboring pair.
+
+The interface uses four companies sharing a conference room as one concrete example. That scenario explains the method; it is not the only intended use.
 
 It is an **experimental symmetry-derived, balanced traversal and fault-tolerant scheduling demonstration**—not a claim of universal scheduling optimality.
 
@@ -9,6 +11,10 @@ It is an **experimental symmetry-derived, balanced traversal and fault-tolerant 
 Open [Helix Scheduler on GitHub Pages](https://wimmerb86-crypto.github.io/helix-scheduler/).
 
 ## Where Helix is useful
+
+Helix applies to repeated four-item rotations when every item may validly occupy every position, complete coverage matters, and small predictable changes are preferable to uncontrolled random ordering. Possible mappings include software operation tests, presentation order, counterbalanced study sequences, recurring role rotations, and shared-resource time slots.
+
+### Conference-room example
 
 Imagine four companies sharing one conference room at 9:00 AM, 11:00 AM, 1:00 PM, and 3:00 PM. An uncontrolled random schedule can repeatedly give one company the most desirable time. Helix schedules all 24 possible daily booking orders so every company receives every time slot exactly six times.
 
@@ -80,9 +86,10 @@ The tests verify:
 
 ## Limitations
 
-- The MVP handles exactly four companies, four time slots, and the specified fixed cycle.
-- Company names live only in current browser memory and reset on refresh.
-- Auto-run uses a fixed interval and does not model variable meeting durations, conflicts, availability, or room capacity.
+- The mathematical engine handles exactly four items and the specified fixed cycle; the interface presents companies and meeting slots as an example mapping.
+- User-edited labels live only in current browser memory and reset on refresh.
+- Helix assumes every ordering is valid. It does not decide whether a task must remain first or whether dependencies prohibit a permutation.
+- The conference-room example does not model variable meeting durations, conflicts, availability, or room capacity.
 - Positional balance is one fairness property; it does not imply optimality for every workload or objective.
 
 ## Build Week development history

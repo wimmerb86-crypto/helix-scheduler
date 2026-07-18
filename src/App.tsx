@@ -97,20 +97,21 @@ function App() {
 
       <main id="top">
         <section className="hero">
-          <div className="eyebrow"><span /> FAIR ROOM ACCESS, WITHOUT RANDOM IMBALANCE</div>
-          <h1>Fair meeting times.<br /><em>Minimal disruption.</em></h1>
+          <div className="eyebrow"><span /> COMPLETE COVERAGE, WITHOUT RANDOM IMBALANCE</div>
+          <h1>Balanced rotations.<br /><em>Minimal disruption.</em></h1>
           <p className="lede">
-            Helix creates a 24-day conference-room schedule for four companies sharing four daily time slots. Every company receives every slot six times, and only two neighboring bookings change between days.
+            Helix is a general 24-state traversal for four items whose order may validly change. It uses every arrangement once, gives each item every position six times, and moves by one adjacent swap. The shared-room schedule below is one concrete example.
           </p>
         </section>
 
         <section className="use-case-panel" aria-labelledby="use-case-title">
           <div className="use-case-copy">
-            <p className="section-kicker">THE PRACTICAL USE CASE</p>
+            <p className="section-kicker">ONE CONCRETE EXAMPLE</p>
             <h2 id="use-case-title">Four companies. One conference room. Four daily time slots.</h2>
             <p>
-              A random daily lineup can repeatedly give one company the earliest—or latest—meeting. Helix cycles through every booking order once, creating a complete and auditable allocation.
+              To make the abstract traversal tangible, this demo maps A–D to four companies. Helix cycles through every booking order once so no company repeatedly receives the earliest—or latest—meeting. This scenario illustrates the method; it does not limit where Helix can be applied.
             </p>
+            <p className="use-case-applications"><strong>Other possible mappings</strong> software test orders · presentation order · counterbalanced study sequences · recurring role rotations</p>
           </div>
           <div className="use-case-example">
             <span>DAY {String(stateIndex + 1).padStart(2, '0')} · SHARED CONFERENCE ROOM</span>
@@ -127,7 +128,7 @@ function App() {
           <div className="panel-heading">
             <div>
               <p className="section-kicker">LIVE TRAVERSAL</p>
-              <h2 id="scheduler-title">Today&apos;s room schedule</h2>
+              <h2 id="scheduler-title">Example room schedule</h2>
             </div>
             <div className="state-readout" aria-live="polite">
               <span>STATE</span>
@@ -172,7 +173,7 @@ function App() {
         <section className="lower-grid">
           <div className="rename-panel">
             <p className="section-kicker">MAKE IT YOURS</p>
-            <h2>Rename companies</h2>
+            <h2>Customize example companies</h2>
             <div className="rename-fields">
               {TASK_IDS.map((task) => (
                 <label key={task}>
@@ -192,7 +193,7 @@ function App() {
             <div className="balance-heading">
               <div>
                 <p className="section-kicker">FULL-CYCLE PROOF</p>
-                <h2>Meeting-slot balance</h2>
+                <h2>Example meeting-slot balance</h2>
               </div>
               <span className="verified-badge">{isBalanced ? '✓ VERIFIED' : '! CHECK NEEDED'}</span>
             </div>
@@ -216,7 +217,7 @@ function App() {
 
         <section className="comparison" aria-labelledby="comparison-title">
           <div className="comparison-heading">
-            <p className="section-kicker">WHY NOT JUST RANDOMIZE?</p>
+            <p className="section-kicker">WHY USE A FIXED CYCLE?</p>
             <h2 id="comparison-title">Random gives variety. Helix gives guarantees.</h2>
           </div>
           <div className="comparison-grid">
@@ -225,17 +226,17 @@ function App() {
               <h3>Coverage is unpredictable</h3>
               <ul>
                 <li>Orders can repeat before others appear</li>
-                <li>Companies can repeatedly land in early or late slots</li>
-                <li>Several bookings may change at once</li>
+                <li>Items can repeatedly land in the same positions</li>
+                <li>Several positions may change at once</li>
               </ul>
             </article>
             <article className="comparison-card helix-card">
               <span>THE HELIX CYCLE</span>
-              <h3>Every booking day is accounted for</h3>
+              <h3>Every state is accounted for</h3>
               <ul>
                 <li>All 24 unique orders appear exactly once</li>
-                <li>Each company gets each time exactly six times</li>
-                <li>Only two neighboring bookings swap each day</li>
+                <li>Each item gets each position exactly six times</li>
+                <li>Only two neighboring items swap each round</li>
               </ul>
             </article>
           </div>
@@ -247,9 +248,9 @@ function App() {
         <section className="rotation-plan" aria-labelledby="rotation-title">
           <div className="rotation-heading">
             <div>
-              <p className="section-kicker">A PLAN, NOT JUST A VISUALIZATION</p>
-              <h2 id="rotation-title">Your complete 24-day room schedule</h2>
-              <p>Each row is one booking day. Select a day to inspect its time-slot allocation above.</p>
+              <p className="section-kicker">ONE EXAMPLE OUTPUT</p>
+              <h2 id="rotation-title">Conference room: 24-day schedule</h2>
+              <p>In this mapping, each row is one booking day. Select a day to inspect its time-slot allocation above.</p>
             </div>
             <button className="copy-button" onClick={copyRotationPlan}>{copyStatus}</button>
           </div>
@@ -275,15 +276,15 @@ function App() {
           <h2>Small moves. Complete coverage.</h2>
           <div className="property-list">
             <article><strong>24</strong><div><h3>Unique states</h3><p>Every permutation appears exactly once.</p></div></article>
-            <article><strong>01</strong><div><h3>Adjacent swap</h3><p>Only two companies trade neighboring time slots each day.</p></div></article>
-            <article><strong>06×</strong><div><h3>Equal time access</h3><p>Each company receives every meeting time six times.</p></div></article>
+            <article><strong>01</strong><div><h3>Adjacent swap</h3><p>Only two neighboring items exchange positions each round.</p></div></article>
+            <article><strong>06×</strong><div><h3>Positional balance</h3><p>Each item occupies every position six times.</p></div></article>
           </div>
         </section>
       </main>
 
       <footer>
         <span>HELIX SCHEDULER</span>
-        <p>Experimental balanced room rotation · Fault-tolerant scheduling demonstration</p>
+        <p>Experimental balanced traversal · Fault-tolerant scheduling demonstration</p>
       </footer>
     </div>
   )
