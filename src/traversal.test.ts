@@ -46,16 +46,16 @@ describe('Helix traversal', () => {
     })
   })
 
-  it('formats the complete cycle as a named 24-round plan', () => {
+  it('formats the complete cycle as a named 24-day schedule', () => {
     const plan = formatRotationPlan({
-      A: 'Safety',
-      B: 'Equipment',
-      C: 'Inventory',
-      D: 'Documentation',
-    }).split('\n')
+      A: 'Company A',
+      B: 'Company B',
+      C: 'Company C',
+      D: 'Company D',
+    }, HELIX_STATES, ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM']).split('\n')
 
     expect(plan).toHaveLength(24)
-    expect(plan[0]).toBe('Round 01: Safety -> Equipment -> Inventory -> Documentation')
-    expect(plan.at(-1)).toBe('Round 24: Equipment -> Safety -> Inventory -> Documentation')
+    expect(plan[0]).toBe('Day 01: 9:00 AM Company A | 11:00 AM Company B | 1:00 PM Company C | 3:00 PM Company D')
+    expect(plan.at(-1)).toBe('Day 24: 9:00 AM Company B | 11:00 AM Company A | 1:00 PM Company C | 3:00 PM Company D')
   })
 })

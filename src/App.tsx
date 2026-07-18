@@ -11,20 +11,21 @@ import {
 } from './traversal'
 
 const DEFAULT_NAMES: Record<TaskId, string> = {
-  A: 'Safety',
-  B: 'Equipment',
-  C: 'Inventory',
-  D: 'Documentation',
+  A: 'Company A',
+  B: 'Company B',
+  C: 'Company C',
+  D: 'Company D',
 }
 
 const AUTO_INTERVAL_MS = 1100
+const TIME_SLOTS = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM'] as const
 
 function App() {
   const [stateIndex, setStateIndex] = useState(0)
   const [previousIndex, setPreviousIndex] = useState<number | null>(null)
   const [isRunning, setIsRunning] = useState(false)
   const [taskNames, setTaskNames] = useState<Record<TaskId, string>>(DEFAULT_NAMES)
-  const [copyStatus, setCopyStatus] = useState('Copy 24-round plan')
+  const [copyStatus, setCopyStatus] = useState('Copy 24-day schedule')
 
   const state = stateAt(stateIndex)
   const previousState = previousIndex === null ? null : stateAt(previousIndex)
@@ -36,7 +37,10 @@ function App() {
     [state],
   )
   const isBalanced = TASK_IDS.every((task) => BALANCE_MATRIX[task].every((count) => count === 6))
-  const rotationPlan = useMemo(() => formatRotationPlan(taskNames), [taskNames])
+  const rotationPlan = useMemo(
+    () => formatRotationPlan(taskNames, HELIX_STATES, TIME_SLOTS),
+    [taskNames],
+  )
 
   const goTo = (nextIndex: number) => {
     setStateIndex((current) => {
@@ -67,13 +71,13 @@ function App() {
     try {
       await navigator.clipboard.writeText(rotationPlan)
       setCopyStatus('Copied to clipboard')
-      window.setTimeout(() => setCopyStatus('Copy 24-round plan'), 1800)
+      window.setTimeout(() => setCopyStatus('Copy 24-day schedule'), 1800)
     } catch {
       setCopyStatus('Copy unavailable')
     }
   }
 
-  const selectRound = (index: number) => {
+  const selectDay = (index: number) => {
     goTo(index)
     document.getElementById('scheduler')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
@@ -93,27 +97,29 @@ function App() {
 
       <main id="top">
         <section className="hero">
-          <div className="eyebrow"><span /> FAIR ROTATIONS, WITHOUT RANDOM REPEATS</div>
-          <h1>Fair turns.<br /><em>Minimal disruption.</em></h1>
+          <div className="eyebrow"><span /> FAIR ROOM ACCESS, WITHOUT RANDOM IMBALANCE</div>
+          <h1>Fair meeting times.<br /><em>Minimal disruption.</em></h1>
           <p className="lede">
-            Helix creates a 24-round plan for four recurring independent tasks. Every order appears once, every task gets every position six times, and only two neighbors change between rounds.
+            Helix creates a 24-day conference-room schedule for four companies sharing four daily time slots. Every company receives every slot six times, and only two neighboring bookings change between days.
           </p>
         </section>
 
         <section className="use-case-panel" aria-labelledby="use-case-title">
           <div className="use-case-copy">
             <p className="section-kicker">THE PRACTICAL USE CASE</p>
-            <h2 id="use-case-title">Repeat the same four tasks without always favoring the same one.</h2>
+            <h2 id="use-case-title">Four companies. One conference room. Four daily time slots.</h2>
             <p>
-              Use Helix when a team, tester, or researcher repeats four independent activities and the order can affect attention, effort, or results. It replaces uncontrolled random picks with a complete, auditable rotation.
+              A random daily lineup can repeatedly give one company the earliest—or latest—meeting. Helix cycles through every booking order once, creating a complete and auditable allocation.
             </p>
           </div>
           <div className="use-case-example">
-            <span>EXAMPLE · DAILY OPERATIONS CHECKS</span>
+            <span>DAY {String(stateIndex + 1).padStart(2, '0')} · SHARED CONFERENCE ROOM</span>
             <ol>
-              {TASK_IDS.map((task) => <li key={task}><b>{task}</b>{taskNames[task]}</li>)}
+              {state.map((company, position) => (
+                <li key={company}><b>{TIME_SLOTS[position]}</b><span>{taskNames[company]}</span></li>
+              ))}
             </ol>
-            <p>Across 24 rounds, no check is permanently first—or repeatedly left until last.</p>
+            <p>Across 24 days, every company receives every time slot exactly six times.</p>
           </div>
         </section>
 
@@ -121,7 +127,7 @@ function App() {
           <div className="panel-heading">
             <div>
               <p className="section-kicker">LIVE TRAVERSAL</p>
-              <h2 id="scheduler-title">Current arrangement</h2>
+              <h2 id="scheduler-title">Today&apos;s room schedule</h2>
             </div>
             <div className="state-readout" aria-live="polite">
               <span>STATE</span>
@@ -136,7 +142,7 @@ function App() {
             ))}
           </div>
 
-          <div className="track" aria-label="Ordered task cards">
+          <div className="track" aria-label="Companies ordered by meeting time">
             {TASK_IDS.map((task) => (
               <article
                 className={`task-card card-${task.toLowerCase()}`}
@@ -144,8 +150,8 @@ function App() {
                 style={{ '--position': positions[task] } as CSSProperties}
               >
                 <span className="task-letter">{task}</span>
-                <span className="position-label">POSITION {positions[task] + 1}</span>
-                <h3>{taskNames[task] || `Task ${task}`}</h3>
+                <span className="position-label">SLOT {positions[task] + 1} · {TIME_SLOTS[positions[task]]}</span>
+                <h3>{taskNames[task] || `Company ${task}`}</h3>
                 <span className="drag-line" aria-hidden="true" />
               </article>
             ))}
@@ -166,7 +172,7 @@ function App() {
         <section className="lower-grid">
           <div className="rename-panel">
             <p className="section-kicker">MAKE IT YOURS</p>
-            <h2>Rename tasks</h2>
+            <h2>Rename companies</h2>
             <div className="rename-fields">
               {TASK_IDS.map((task) => (
                 <label key={task}>
@@ -174,7 +180,7 @@ function App() {
                   <input
                     value={taskNames[task]}
                     maxLength={28}
-                    aria-label={`Name for task ${task}`}
+                    aria-label={`Name for company ${task}`}
                     onChange={(event) => setTaskNames({ ...taskNames, [task]: event.target.value })}
                   />
                 </label>
@@ -186,19 +192,19 @@ function App() {
             <div className="balance-heading">
               <div>
                 <p className="section-kicker">FULL-CYCLE PROOF</p>
-                <h2>Positional balance</h2>
+                <h2>Meeting-slot balance</h2>
               </div>
               <span className="verified-badge">{isBalanced ? '✓ VERIFIED' : '! CHECK NEEDED'}</span>
             </div>
-            <p>Across all {HELIX_STATES.length} states, each task occupies each position exactly six times.</p>
+            <p>Across all {HELIX_STATES.length} days, each company receives each meeting time exactly six times.</p>
             <div className="matrix-wrap">
               <table>
-                <caption className="sr-only">Position counts for every task across the complete cycle</caption>
-                <thead><tr><th>TASK</th>{[1, 2, 3, 4].map((position) => <th key={position}>P{position}</th>)}</tr></thead>
+                <caption className="sr-only">Meeting-time counts for every company across the complete cycle</caption>
+                <thead><tr><th>COMPANY</th>{['9AM', '11AM', '1PM', '3PM'].map((time) => <th key={time}>{time}</th>)}</tr></thead>
                 <tbody>
                   {TASK_IDS.map((task) => (
                     <tr key={task}>
-                      <th><span className={`matrix-dot dot-${task.toLowerCase()}`} />{task}</th>
+                      <th><span className={`matrix-dot dot-${task.toLowerCase()}`} />{taskNames[task]}</th>
                       {BALANCE_MATRIX[task].map((count, position) => <td key={position}>{count}</td>)}
                     </tr>
                   ))}
@@ -219,17 +225,17 @@ function App() {
               <h3>Coverage is unpredictable</h3>
               <ul>
                 <li>Orders can repeat before others appear</li>
-                <li>Tasks can cluster in early or late positions</li>
-                <li>Several positions may change at once</li>
+                <li>Companies can repeatedly land in early or late slots</li>
+                <li>Several bookings may change at once</li>
               </ul>
             </article>
             <article className="comparison-card helix-card">
               <span>THE HELIX CYCLE</span>
-              <h3>Every round is accounted for</h3>
+              <h3>Every booking day is accounted for</h3>
               <ul>
                 <li>All 24 unique orders appear exactly once</li>
-                <li>Each task gets each position exactly six times</li>
-                <li>Every round changes by one adjacent swap</li>
+                <li>Each company gets each time exactly six times</li>
+                <li>Only two neighboring bookings swap each day</li>
               </ul>
             </article>
           </div>
@@ -242,8 +248,8 @@ function App() {
           <div className="rotation-heading">
             <div>
               <p className="section-kicker">A PLAN, NOT JUST A VISUALIZATION</p>
-              <h2 id="rotation-title">Your complete 24-round rotation</h2>
-              <p>Each row is one shift, meeting, test run, or study session. Select a round to inspect it above.</p>
+              <h2 id="rotation-title">Your complete 24-day room schedule</h2>
+              <p>Each row is one booking day. Select a day to inspect its time-slot allocation above.</p>
             </div>
             <button className="copy-button" onClick={copyRotationPlan}>{copyStatus}</button>
           </div>
@@ -252,13 +258,13 @@ function App() {
               <button
                 className={`round-card${stateIndex === index ? ' is-current' : ''}`}
                 key={index}
-                onClick={() => selectRound(index)}
-                aria-label={`Select round ${index + 1}: ${round.map((task) => taskNames[task]).join(', ')}`}
+                onClick={() => selectDay(index)}
+                aria-label={`Select day ${index + 1}: ${round.map((task) => taskNames[task]).join(', ')}`}
                 aria-pressed={stateIndex === index}
               >
-                <span>ROUND {String(index + 1).padStart(2, '0')}</span>
+                <span>DAY {String(index + 1).padStart(2, '0')}</span>
                 <strong>{round.join('')}</strong>
-                <small>{round.map((task) => taskNames[task]).join(' · ')}</small>
+                <small>{round.map((task, position) => `${TIME_SLOTS[position]} ${taskNames[task]}`).join(' · ')}</small>
               </button>
             ))}
           </div>
@@ -269,15 +275,15 @@ function App() {
           <h2>Small moves. Complete coverage.</h2>
           <div className="property-list">
             <article><strong>24</strong><div><h3>Unique states</h3><p>Every permutation appears exactly once.</p></div></article>
-            <article><strong>01</strong><div><h3>Adjacent swap</h3><p>Each transition exchanges neighboring tasks.</p></div></article>
-            <article><strong>06×</strong><div><h3>Perfect balance</h3><p>Each task visits every position six times.</p></div></article>
+            <article><strong>01</strong><div><h3>Adjacent swap</h3><p>Only two companies trade neighboring time slots each day.</p></div></article>
+            <article><strong>06×</strong><div><h3>Equal time access</h3><p>Each company receives every meeting time six times.</p></div></article>
           </div>
         </section>
       </main>
 
       <footer>
         <span>HELIX SCHEDULER</span>
-        <p>Experimental balanced traversal · Fault-tolerant scheduling demonstration</p>
+        <p>Experimental balanced room rotation · Fault-tolerant scheduling demonstration</p>
       </footer>
     </div>
   )
