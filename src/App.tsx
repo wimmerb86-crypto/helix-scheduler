@@ -5,15 +5,16 @@ import {
   TASK_IDS,
   type TaskId,
   adjacentSwapPositions,
+  formatRotationPlan,
   stateAt,
   wrapStateIndex,
 } from './traversal'
 
 const DEFAULT_NAMES: Record<TaskId, string> = {
-  A: 'Discover',
-  B: 'Design',
-  C: 'Build',
-  D: 'Validate',
+  A: 'Safety',
+  B: 'Equipment',
+  C: 'Inventory',
+  D: 'Documentation',
 }
 
 const AUTO_INTERVAL_MS = 1100
@@ -23,6 +24,7 @@ function App() {
   const [previousIndex, setPreviousIndex] = useState<number | null>(null)
   const [isRunning, setIsRunning] = useState(false)
   const [taskNames, setTaskNames] = useState<Record<TaskId, string>>(DEFAULT_NAMES)
+  const [copyStatus, setCopyStatus] = useState('Copy 24-round plan')
 
   const state = stateAt(stateIndex)
   const previousState = previousIndex === null ? null : stateAt(previousIndex)
@@ -34,6 +36,7 @@ function App() {
     [state],
   )
   const isBalanced = TASK_IDS.every((task) => BALANCE_MATRIX[task].every((count) => count === 6))
+  const rotationPlan = useMemo(() => formatRotationPlan(taskNames), [taskNames])
 
   const goTo = (nextIndex: number) => {
     setStateIndex((current) => {
@@ -60,6 +63,21 @@ function App() {
     setTaskNames(DEFAULT_NAMES)
   }
 
+  const copyRotationPlan = async () => {
+    try {
+      await navigator.clipboard.writeText(rotationPlan)
+      setCopyStatus('Copied to clipboard')
+      window.setTimeout(() => setCopyStatus('Copy 24-round plan'), 1800)
+    } catch {
+      setCopyStatus('Copy unavailable')
+    }
+  }
+
+  const selectRound = (index: number) => {
+    goTo(index)
+    document.getElementById('scheduler')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -75,14 +93,31 @@ function App() {
 
       <main id="top">
         <section className="hero">
-          <div className="eyebrow"><span /> BALANCED BY DESIGN</div>
-          <h1>Every task.<br /><em>Every position.</em></h1>
+          <div className="eyebrow"><span /> FAIR ROTATIONS, WITHOUT RANDOM REPEATS</div>
+          <h1>Fair turns.<br /><em>Minimal disruption.</em></h1>
           <p className="lede">
-            An experimental, symmetry-derived traversal through all 24 ways to order four tasks—one adjacent swap at a time.
+            Helix creates a 24-round plan for four recurring independent tasks. Every order appears once, every task gets every position six times, and only two neighbors change between rounds.
           </p>
         </section>
 
-        <section className="scheduler-panel" aria-labelledby="scheduler-title">
+        <section className="use-case-panel" aria-labelledby="use-case-title">
+          <div className="use-case-copy">
+            <p className="section-kicker">THE PRACTICAL USE CASE</p>
+            <h2 id="use-case-title">Repeat the same four tasks without always favoring the same one.</h2>
+            <p>
+              Use Helix when a team, tester, or researcher repeats four independent activities and the order can affect attention, effort, or results. It replaces uncontrolled random picks with a complete, auditable rotation.
+            </p>
+          </div>
+          <div className="use-case-example">
+            <span>EXAMPLE · DAILY OPERATIONS CHECKS</span>
+            <ol>
+              {TASK_IDS.map((task) => <li key={task}><b>{task}</b>{taskNames[task]}</li>)}
+            </ol>
+            <p>Across 24 rounds, no check is permanently first—or repeatedly left until last.</p>
+          </div>
+        </section>
+
+        <section id="scheduler" className="scheduler-panel" aria-labelledby="scheduler-title">
           <div className="panel-heading">
             <div>
               <p className="section-kicker">LIVE TRAVERSAL</p>
@@ -170,6 +205,62 @@ function App() {
                 </tbody>
               </table>
             </div>
+          </div>
+        </section>
+
+        <section className="comparison" aria-labelledby="comparison-title">
+          <div className="comparison-heading">
+            <p className="section-kicker">WHY NOT JUST RANDOMIZE?</p>
+            <h2 id="comparison-title">Random gives variety. Helix gives guarantees.</h2>
+          </div>
+          <div className="comparison-grid">
+            <article className="comparison-card random-card">
+              <span>INDEPENDENT RANDOM PICKS</span>
+              <h3>Coverage is unpredictable</h3>
+              <ul>
+                <li>Orders can repeat before others appear</li>
+                <li>Tasks can cluster in early or late positions</li>
+                <li>Several positions may change at once</li>
+              </ul>
+            </article>
+            <article className="comparison-card helix-card">
+              <span>THE HELIX CYCLE</span>
+              <h3>Every round is accounted for</h3>
+              <ul>
+                <li>All 24 unique orders appear exactly once</li>
+                <li>Each task gets each position exactly six times</li>
+                <li>Every round changes by one adjacent swap</li>
+              </ul>
+            </article>
+          </div>
+          <p className="comparison-note">
+            A random shuffle without replacement can also cover all 24 orders. Helix additionally provides a fixed adjacent-swap path, a closed cycle, and a schedule that is easy to replay and audit.
+          </p>
+        </section>
+
+        <section className="rotation-plan" aria-labelledby="rotation-title">
+          <div className="rotation-heading">
+            <div>
+              <p className="section-kicker">A PLAN, NOT JUST A VISUALIZATION</p>
+              <h2 id="rotation-title">Your complete 24-round rotation</h2>
+              <p>Each row is one shift, meeting, test run, or study session. Select a round to inspect it above.</p>
+            </div>
+            <button className="copy-button" onClick={copyRotationPlan}>{copyStatus}</button>
+          </div>
+          <div className="round-grid">
+            {HELIX_STATES.map((round, index) => (
+              <button
+                className={`round-card${stateIndex === index ? ' is-current' : ''}`}
+                key={index}
+                onClick={() => selectRound(index)}
+                aria-label={`Select round ${index + 1}: ${round.map((task) => taskNames[task]).join(', ')}`}
+                aria-pressed={stateIndex === index}
+              >
+                <span>ROUND {String(index + 1).padStart(2, '0')}</span>
+                <strong>{round.join('')}</strong>
+                <small>{round.map((task) => taskNames[task]).join(' · ')}</small>
+              </button>
+            ))}
           </div>
         </section>
 

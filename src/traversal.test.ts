@@ -4,6 +4,7 @@ import {
   HELIX_STATES,
   TASK_IDS,
   adjacentSwapPositions,
+  formatRotationPlan,
   stateAt,
 } from './traversal'
 
@@ -43,5 +44,18 @@ describe('Helix traversal', () => {
     TASK_IDS.forEach((task) => {
       expect(BALANCE_MATRIX[task]).toEqual([6, 6, 6, 6])
     })
+  })
+
+  it('formats the complete cycle as a named 24-round plan', () => {
+    const plan = formatRotationPlan({
+      A: 'Safety',
+      B: 'Equipment',
+      C: 'Inventory',
+      D: 'Documentation',
+    }).split('\n')
+
+    expect(plan).toHaveLength(24)
+    expect(plan[0]).toBe('Round 01: Safety -> Equipment -> Inventory -> Documentation')
+    expect(plan.at(-1)).toBe('Round 24: Equipment -> Safety -> Inventory -> Documentation')
   })
 })

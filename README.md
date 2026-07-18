@@ -1,10 +1,24 @@
 # Helix Scheduler
 
-Helix Scheduler is an interactive Build Week demonstration of a complete cyclic traversal through all 24 permutations of four tasks. It is an **experimental symmetry-derived, balanced traversal and fault-tolerant scheduling demonstration**—not a claim of universal scheduling optimality.
+Helix Scheduler is a balanced rotation planner for teams, testers, and researchers who repeat four independent tasks and need the ordering to be fair, complete, and easy to audit. It turns a complete cyclic traversal of all 24 permutations into an interactive, copyable 24-round plan.
+
+It is an **experimental symmetry-derived, balanced traversal and fault-tolerant scheduling demonstration**—not a claim of universal scheduling optimality.
 
 ## Live demo
 
 Open [Helix Scheduler on GitHub Pages](https://wimmerb86-crypto.github.io/helix-scheduler/).
+
+## Where Helix is useful
+
+Helix is designed for repeated rounds in which four independent tasks, people, checks, or test operations must take turns occupying four ordered positions. Examples include daily operational checks, meeting or presentation rotations, counterbalanced study sessions, and software tests that need to exercise every operation order.
+
+Across one 24-round cycle:
+
+- every possible ordering appears exactly once;
+- every task occupies every position exactly six times; and
+- each new round changes only one neighboring pair.
+
+Independent random selection cannot guarantee those properties over a fixed number of rounds. Randomly shuffling all 24 states without replacement can provide complete coverage, but Helix also provides minimal adjacent changes, a deterministic audit trail, and a closed cycle that can be paused, reversed, and repeated.
 
 ## Quick start
 

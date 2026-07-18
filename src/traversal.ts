@@ -78,3 +78,15 @@ export function calculateBalanceMatrix(states: readonly HelixState[] = HELIX_STA
 }
 
 export const BALANCE_MATRIX = calculateBalanceMatrix()
+
+export function formatRotationPlan(
+  taskNames: Readonly<Record<TaskId, string>>,
+  states: readonly HelixState[] = HELIX_STATES,
+): string {
+  return states
+    .map((state, index) => {
+      const round = String(index + 1).padStart(2, '0')
+      return `Round ${round}: ${state.map((task) => taskNames[task]).join(' -> ')}`
+    })
+    .join('\n')
+}
