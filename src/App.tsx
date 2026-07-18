@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import {
+  AUDIT_INPUT_LIMITS,
   DEMO_REQUEST,
   DEMO_VERDICTS,
   summarizeAudit,
   validateAuditRequest,
-  type AgentSubmission,
   type AuditRequest,
   type AuditVerdict,
 } from './audit'
@@ -42,6 +42,8 @@ function App() {
   const [auditRequest, setAuditRequest] = useState<AuditRequest>(copyDemoRequest)
   const [verdicts, setVerdicts] = useState<readonly AuditVerdict[]>(DEMO_VERDICTS)
   const [auditMode, setAuditMode] = useState<AuditMode>('demo')
+  const [liveModel, setLiveModel] = useState('gpt-5.6-luna')
+  const [accessCode, setAccessCode] = useState('')
   const [isAuditing, setIsAuditing] = useState(false)
   const [auditMessage, setAuditMessage] = useState('Showing a transparent synthetic audit so the full experience works without an API key.')
 
@@ -54,9 +56,6 @@ function App() {
   const agentNames = useMemo(() => Object.fromEntries(
     auditRequest.agents.map((agent) => [agent.id, agent.name || `Agent ${agent.id}`]),
   ) as Record<TaskId, string>, [auditRequest.agents])
-  const agentsById = useMemo(() => Object.fromEntries(
-    auditRequest.agents.map((agent) => [agent.id, agent]),
-  ) as Record<TaskId, AgentSubmission>, [auditRequest.agents])
   const positions = useMemo(
     () => Object.fromEntries(state.map((agent, position) => [agent, position])) as Record<TaskId, number>,
     [state],
@@ -96,6 +95,7 @@ function App() {
     setAuditRequest(copyDemoRequest())
     setVerdicts(DEMO_VERDICTS)
     setAuditMode('demo')
+    setAccessCode('')
     setAuditMessage('Sample restored. Its visible position effect is synthetic and does not judge the response text.')
     setIsRunning(false)
     setPreviousIndex(null)
@@ -112,6 +112,10 @@ function App() {
       setAuditMessage('The secure GPT judge is not connected on this static deployment. The sample audit remains fully interactive.')
       return
     }
+    if (!accessCode.trim()) {
+      setAuditMessage('Enter the private judge access code before starting a paid audit.')
+      return
+    }
 
     setIsAuditing(true)
     setAuditMessage('Running 24 independent judgments. The task, rubric, and responses stay fixed while only their order changes.')
@@ -119,15 +123,17 @@ function App() {
       const response = await fetch(LIVE_AUDIT_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(auditRequest),
+        body: JSON.stringify({ ...auditRequest, accessCode }),
       })
-      const payload = await response.json() as { verdicts?: AuditVerdict[]; error?: string }
+      const payload = await response.json() as { verdicts?: AuditVerdict[]; model?: string; error?: string }
       if (!response.ok || !payload.verdicts) throw new Error(payload.error || 'The audit endpoint returned an incomplete result.')
 
       summarizeAudit(payload.verdicts)
       setVerdicts(payload.verdicts)
       setAuditMode('live')
-      setAuditMessage('GPT-5.6 completed all 24 order-balanced judgments.')
+      setLiveModel(payload.model ?? 'gpt-5.6-luna')
+      setAccessCode('')
+      setAuditMessage(`${payload.model ?? 'gpt-5.6-luna'} completed all 24 order-balanced judgments.`)
       setPreviousIndex(null)
       setStateIndex(0)
     } catch (error) {
@@ -190,33 +196,43 @@ function App() {
               <h2 id="lab-title">Test a judge for order sensitivity</h2>
               <p>Agent identities are tracked internally. The judge sees anonymous Response 1–4 labels in the selected Helix order.</p>
             </div>
-            <span className={`mode-badge mode-${auditMode}`}>{auditMode === 'live' ? 'GPT-5.6 AUDIT' : 'SYNTHETIC DEMO'}</span>
+            <span className={`mode-badge mode-${auditMode}`}>{auditMode === 'live' ? `${liveModel.toUpperCase()} AUDIT` : 'SYNTHETIC DEMO'}</span>
           </div>
 
           <div className="lab-form">
             <label className="wide-field">
               <span>TASK GIVEN TO ALL FOUR AGENTS</span>
-              <textarea value={auditRequest.task} maxLength={1600} rows={3} onChange={(event) => updateRequestField('task', event.target.value)} />
+              <textarea value={auditRequest.task} maxLength={AUDIT_INPUT_LIMITS.task} rows={3} onChange={(event) => updateRequestField('task', event.target.value)} />
             </label>
             <label className="wide-field">
               <span>JUDGING RUBRIC</span>
-              <textarea value={auditRequest.rubric} maxLength={1600} rows={3} onChange={(event) => updateRequestField('rubric', event.target.value)} />
+              <textarea value={auditRequest.rubric} maxLength={AUDIT_INPUT_LIMITS.rubric} rows={3} onChange={(event) => updateRequestField('rubric', event.target.value)} />
             </label>
 
             <div className="agent-response-grid">
               {auditRequest.agents.map((agent) => (
                 <label className={`agent-response agent-${agent.id.toLowerCase()}`} key={agent.id}>
                   <span className="agent-response-heading"><b>{agent.id}</b><small>CANDIDATE RESPONSE</small></span>
-                  <input value={agent.name} maxLength={48} aria-label={`Name for agent ${agent.id}`} onChange={(event) => updateAgent(agent.id, 'name', event.target.value)} />
-                  <textarea value={agent.response} maxLength={2000} rows={8} aria-label={`Response from agent ${agent.id}`} onChange={(event) => updateAgent(agent.id, 'response', event.target.value)} />
+                  <input value={agent.name} maxLength={AUDIT_INPUT_LIMITS.agentName} aria-label={`Name for agent ${agent.id}`} onChange={(event) => updateAgent(agent.id, 'name', event.target.value)} />
+                  <textarea value={agent.response} maxLength={AUDIT_INPUT_LIMITS.agentResponse} rows={8} aria-label={`Response from agent ${agent.id}`} onChange={(event) => updateAgent(agent.id, 'response', event.target.value)} />
                 </label>
               ))}
             </div>
 
             <div className="lab-actions">
-              <button className="primary-button" onClick={runLiveAudit} disabled={isAuditing}>
-                {isAuditing ? 'Running 24 judgments…' : 'Run GPT-5.6 audit'}
-              </button>
+              {LIVE_AUDIT_ENDPOINT ? (
+                <div className="private-run-controls">
+                  <label className="judge-code-field">
+                    <span>PRIVATE JUDGE ACCESS CODE</span>
+                    <input type="password" value={accessCode} minLength={8} maxLength={128} autoComplete="off" onChange={(event) => setAccessCode(event.target.value)} />
+                  </label>
+                  <button className="primary-button" onClick={runLiveAudit} disabled={isAuditing}>
+                    {isAuditing ? 'Running 24 judgments…' : 'Run private Luna audit'}
+                  </button>
+                </div>
+              ) : (
+                <div className="public-mode-note"><strong>PUBLIC DEMO MODE</strong><span>Paid GPT judging is disabled here. Judges receive a separate protected deployment.</span></div>
+              )}
               <button className="secondary-button" onClick={loadDemo}>Restore sample</button>
               <p aria-live="polite">{auditMessage}</p>
             </div>
@@ -322,7 +338,7 @@ function App() {
             <h2>Rename the four agents</h2>
             <p>Names change for readability; stable A–D identities keep every audit comparable.</p>
             <div className="rename-fields">{TASK_IDS.map((agent) => (
-              <label key={agent}><span>{agent}</span><input value={agentNames[agent]} maxLength={48} aria-label={`Rename agent ${agent}`} onChange={(event) => updateAgent(agent, 'name', event.target.value)} /></label>
+              <label key={agent}><span>{agent}</span><input value={agentNames[agent]} maxLength={AUDIT_INPUT_LIMITS.agentName} aria-label={`Rename agent ${agent}`} onChange={(event) => updateAgent(agent, 'name', event.target.value)} /></label>
             ))}</div>
           </div>
 
