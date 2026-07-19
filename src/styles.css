@@ -93,12 +93,18 @@ h1 em { color: var(--lime); font-family: 'Playfair Display', Georgia, serif; fon
 .agent-response-heading small { margin: 0; }
 .agent-response input { padding: 12px 13px; border-bottom: 0; font-weight: 700; }
 .agent-response textarea { flex: 1; min-height: 168px; padding: 13px; color: var(--muted); font-size: 13px; line-height: 1.55; }
-.lab-actions { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 10px; margin-top: 28px; }
+.lab-actions { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 10px; margin-top: 28px; }
 .lab-actions button { min-height: 50px; border: 1px solid var(--line); cursor: pointer; }
 .lab-actions button:disabled { cursor: wait; opacity: .65; }
 .lab-actions .primary-button { min-width: 210px; }
 .secondary-button { padding: 0 20px; background: transparent; color: var(--muted); }
-.lab-actions p { margin: 0 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.lab-actions p { grid-column: 1 / -1; margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.private-run-controls { display: grid; grid-template-columns: minmax(190px, 290px) auto; align-items: end; gap: 10px; }
+.judge-code-field > span { display: block; margin-bottom: 8px; color: var(--lime); font: 500 9px 'DM Mono', monospace; letter-spacing: .1em; }
+.judge-code-field input { width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid var(--line); background: #071512; color: var(--ink); letter-spacing: .08em; }
+.public-mode-note { display: flex; align-items: center; gap: 16px; min-height: 50px; padding: 11px 16px; border: 1px solid var(--line); background: rgba(201,243,107,.05); }
+.public-mode-note strong { flex: none; color: var(--lime); font: 500 9px 'DM Mono', monospace; letter-spacing: .1em; }
+.public-mode-note span { color: var(--muted); font-size: 11px; line-height: 1.45; }
 
 .results-panel { padding: clamp(24px, 4vw, 46px); border: 1px solid var(--line); border-top: 0; background: #091a16; }
 .results-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
@@ -288,6 +294,8 @@ footer p { margin: 0; text-align: right; }
   .lab-actions { grid-template-columns: 1fr; }
   .lab-actions .primary-button, .lab-actions .secondary-button { width: 100%; }
   .lab-actions p { margin: 8px 0 0; }
+  .private-run-controls { grid-template-columns: 1fr; }
+  .public-mode-note { align-items: flex-start; flex-direction: column; gap: 5px; }
   .metric-grid { grid-template-columns: 1fr 1fr; }
   .metric-grid article > span { min-height: 0; }
   .verdict-detail { grid-template-columns: 1fr; gap: 24px; }

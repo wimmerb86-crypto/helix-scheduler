@@ -36,6 +36,13 @@ export type AuditSummary = {
   isOrderSensitive: boolean
 }
 
+export const AUDIT_INPUT_LIMITS = {
+  task: 500,
+  rubric: 500,
+  agentName: 48,
+  agentResponse: 1000,
+} as const
+
 const emptyCountRecord = (): Record<TaskId, number> => ({ A: 0, B: 0, C: 0, D: 0 })
 
 const emptyMatrix = (): Record<TaskId, [number, number, number, number]> => ({
@@ -120,7 +127,9 @@ export function summarizeAudit(verdicts: readonly AuditVerdict[]): AuditSummary 
 export function validateAuditRequest(request: AuditRequest): string[] {
   const errors: string[] = []
   if (!request.task.trim()) errors.push('Describe the task being evaluated.')
+  if (request.task.length > AUDIT_INPUT_LIMITS.task) errors.push(`Keep the task under ${AUDIT_INPUT_LIMITS.task} characters.`)
   if (!request.rubric.trim()) errors.push('Add a judging rubric.')
+  if (request.rubric.length > AUDIT_INPUT_LIMITS.rubric) errors.push(`Keep the rubric under ${AUDIT_INPUT_LIMITS.rubric} characters.`)
   if (request.agents.length !== TASK_IDS.length) errors.push('Provide exactly four agent responses.')
 
   const ids = new Set(request.agents.map((agent) => agent.id))
@@ -130,7 +139,9 @@ export function validateAuditRequest(request: AuditRequest): string[] {
 
   request.agents.forEach((agent) => {
     if (!agent.name.trim()) errors.push(`Agent ${agent.id} needs a name.`)
+    if (agent.name.length > AUDIT_INPUT_LIMITS.agentName) errors.push(`Keep agent ${agent.id}'s name under ${AUDIT_INPUT_LIMITS.agentName} characters.`)
     if (!agent.response.trim()) errors.push(`Agent ${agent.id} needs a response.`)
+    if (agent.response.length > AUDIT_INPUT_LIMITS.agentResponse) errors.push(`Keep agent ${agent.id}'s response under ${AUDIT_INPUT_LIMITS.agentResponse} characters.`)
   })
 
   return errors
